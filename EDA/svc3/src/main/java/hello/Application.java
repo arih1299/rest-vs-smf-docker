@@ -43,9 +43,6 @@ public class Application {
 
 	XMLMessageConsumer consumer;
 	TextMessage request;
-//	StreamMessage request;
-//	SDTStream stream;
-//	Requestor requestor;
 	FlowReceiver flow;
 
 	final Topic topic = JCSMPFactory.onlyInstance().createTopic("demo/core/rest/req");
@@ -62,22 +59,12 @@ public class Application {
 
 		try {
 			request.setText(body);
-//			stream.writeBytes(body.getBytes());
-//			request.setStream(stream);
-
-//			replyQ = session.createTemporaryQueue();
 			request.setReplyTo(replyQ);
-
-//			ConsumerFlowProperties flowProps = new ConsumerFlowProperties();
-//			flowProps.setEndpoint(replyQ);
-//			flow = session.createFlow(null, flowProps);
-//			flow.start();
 
 //			BytesXMLMessage reply = requestor.request(request, timeoutMs, topic);
 			producer.send(request, topic);
 
 			BytesXMLMessage reply = flow.receive(timeoutMs);
-//			BytesXMLMessage reply = flow.receiveNoWait();
 
 			// Process the reply
 			if (reply != null) {
@@ -95,13 +82,9 @@ public class Application {
 			}
 
 			reply = null;
-//			request = null;
-//			producer.close();
-//			flow.close();
 
 		} catch (JCSMPRequestTimeoutException e) {
 			System.out.println("Failed to receive a reply in " + timeoutMs + " msecs");
-//			System.out.println("Failed to receive a reply");
 		} catch (JCSMPException e) {
 			System.out.println("JCSMPException: " + e.getMessage());
 		}
@@ -112,7 +95,7 @@ public class Application {
 	@PostConstruct
 	private void init() throws JCSMPException {
 
-		// Solace parts
+		// Instantiates the SMF stuff at the initiation, reuse for each REST requests later
 		// Create a JCSMP Session
 		properties.setProperty(JCSMPProperties.HOST, solurl);     // host:port
 		properties.setProperty(JCSMPProperties.USERNAME, username); // client-username
@@ -124,7 +107,6 @@ public class Application {
 		//This will have the session create the producer and consumer required
 		//by the Requestor used below.
 
-//		producer = session.getMessageProducer(new PrintingPubCallback());
 		producer = session.getMessageProducer(new JCSMPStreamingPublishEventHandler() {
 			@Override
 			public void responseReceived(String messageID) {
@@ -140,8 +122,6 @@ public class Application {
 		consumer = session.getMessageConsumer((XMLMessageListener)null);
 		consumer.start();
 		request = JCSMPFactory.onlyInstance().createMessage(TextMessage.class);
-//		request = JCSMPFactory.onlyInstance().createMessage(StreamMessage.class);
-//		stream = JCSMPFactory.onlyInstance().createStream();
 		request.setDeliveryMode(DeliveryMode.PERSISTENT);
 //		requestor = session.createRequestor();
 
