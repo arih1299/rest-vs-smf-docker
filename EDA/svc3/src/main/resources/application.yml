@@ -1,0 +1,20 @@
+server:
+  port: 8083
+  tomcat:
+          max-threads: 100
+
+#TODO: figure out why I need this here and in bootstrap.yml
+spring:
+  application:
+    name: demoEDAsvc1
+
+ribbon:
+  ServerListRefreshInterval: 1000
+
+endpoints:
+  health:
+    sensitive: false
+  restart:
+    enabled: true
+  shutdown:
+    enabled: true
