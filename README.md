@@ -36,5 +36,5 @@ k6 run --vus 10 --duration 100s load-rest.ts
 
 To monitor the containers resource consumptions:
 ```
-docker stats
+docker stats rest-svc1 rest-svc2 eda-svc3 eda-svc4
 ```
